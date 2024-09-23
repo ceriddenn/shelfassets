@@ -3,7 +3,7 @@ import React, { Fragment, ReactElement, useEffect, useState } from 'react'
 import WorkspaceSwitcher from "./WorkspaceSwitcher"
 import { RectangleGroupIcon, Square3Stack3DIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image';
-import { User, Workspace } from '@prisma/client';
+import { User } from '@prisma/client';
 
 type ViewPerm = "ADMIN" | "MEMBER"
 

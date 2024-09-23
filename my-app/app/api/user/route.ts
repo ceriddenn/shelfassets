@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth"
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma'
 export const GET = auth(async function GET(req) {
     if (req.auth) {
