@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NEXT AUTH
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  bookings        Booking[]
+  workspaces      Workspace[]
+  workspaceInvite WorkspaceInvite[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, credentialID])
+}
+
+model Location {
+  id String @id @default(cuid())
+
+  name        String
+  description String
+  address     String
+  Asset       Asset[]
+
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
+}
+
+model ActivityMessage {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  message       String
+  systemMessage Boolean
+
+  asset   Asset?  @relation(fields: [assetId], references: [id])
+  assetId String?
+}
+
+model Booking {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  asset  Asset[]
+  reason String?
+
+  userCustody User   @relation(fields: [userId], references: [id])
+  userId      String
+}
+
+enum AssetState {
+  AVAILABLE
+  IC
+  UNAVAILABLE
+}
+
+model Asset {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+  value     Int      @default(0)
+
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  bookingId String
+
+  activity    ActivityMessage[]
+  state       AssetState        @default(AVAILABLE)
+  name        String
+  description String
+  image       String?
+
+  location   Location @relation(fields: [locationId], references: [id])
+  locationId String
+
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
+}
+
+enum WorkspaceType {
+  PERSONAL
+  TEAM
+  ENTERPRISE
+}
+
+model NonRegisMember {
+  id    String  @id @default(cuid())
+  name  String
+  email String?
+
+  createdAt   DateTime   @default(now())
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspaceType WorkspaceType @default(PERSONAL)
+  locations     Location[]
+  assets        Asset[]
+  image         String
+
+  name         String
+  organization String?
+
+  accountHolder    User              @relation(fields: [userId], references: [id])
+  userId           String
+  nonRegisMembers  NonRegisMember[]
+  workspaceAdmins  String[]
+  workspaceMembers String[]
+  workspaceInvites WorkspaceInvite[]
+}
+
+model WorkspaceInvite {
+  id String @id @default(cuid())
+
+  invitee User   @relation(fields: [userId], references: [id])
+  userId  String
+
+  inviter String
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+
+  expires Int // in hours
+
+  createdAt DateTime @default(now())
+}
