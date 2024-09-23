@@ -11,19 +11,15 @@ export default {
     ],
     callbacks: {
         async session({ session, token }) {
-            try {
-                //if (session != null && token != null) {
-                const req = await fetch(process.env.NEXT_PUBLIC_APP_URL!, {
+
+            if (session != null && token != null) {
+                await fetch(process.env.NEXT_PUBLIC_APP_URL! + "/api/user", {
                     method: "POST", credentials: "include", body: JSON.stringify({
                         name: session.user.name,
                         id: token.sub
                     }),
                     headers: { 'Content-Type': 'application/json' },
                 });
-                console.log(req)
-                //  }
-            } catch (error) {
-                console.error(error);
             }
 
             return ({
