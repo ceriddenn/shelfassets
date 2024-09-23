@@ -1,9 +1,6 @@
 "use client";
 import * as React from "react"
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons"
-import { useSession } from "next-auth/react"
-import { auth } from "@/lib/auth"
-
 import { cn } from "../../../lib/utils"
 import { Button } from "../../ui/button"
 import {
@@ -29,10 +26,9 @@ interface WorkspaceSwitcherProps {
   userData: User | null
 }
 
-export default function WorkspaceSwitcher({ image, setIsAdmin, userData }: WorkspaceSwitcherProps) {
+export default function WorkspaceSwitcher({ setIsAdmin, userData }: WorkspaceSwitcherProps) {
   const [open, setOpen] = React.useState(false)
   const [workspaces, setWorkspaces] = React.useState<Array<Workspace>>();
-  const [currentWorkspaceIndex, setCurrentWorkspaceIndex] = React.useState<number>(0);
   const searchParams = useSearchParams()
   const router = useRouter();
 
@@ -47,7 +43,7 @@ export default function WorkspaceSwitcher({ image, setIsAdmin, userData }: Works
 
   const hasAccessToWorkspace = () => {
 
-    workspaces?.forEach((workspace, i) => {
+    workspaces?.forEach((workspace) => {
       if (workspace.id == wsId) {
         if (workspace.userId == userData?.id) return;
         if (workspace.workspaceAdmins.includes(userData!.id)) return;
@@ -59,12 +55,11 @@ export default function WorkspaceSwitcher({ image, setIsAdmin, userData }: Works
   }
 
   const isUserAdminOnCurrentWorkspace = () => {
-    workspaces?.forEach((workspace, i) => {
+    workspaces?.forEach((workspace) => {
       if (workspace.id == wsId) {
         // set currentworkspaceindex here as this will run
         // on page load, while the only other time
         // ran is on workspace switch function.
-        setCurrentWorkspaceIndex(i);
         if (workspace.userId == userData!.id) return setIsAdmin(true);
         if (workspace.workspaceAdmins.includes(userData!.id)) return setIsAdmin(true);
         return setIsAdmin(false);
@@ -90,7 +85,6 @@ export default function WorkspaceSwitcher({ image, setIsAdmin, userData }: Works
     router.push("/dashboard?workspace=" + v);
     //workspaceindex is used to determine the active workspace out of the 
     // workspaces array.
-    setCurrentWorkspaceIndex(i)
     setOpen(false)
   }
 

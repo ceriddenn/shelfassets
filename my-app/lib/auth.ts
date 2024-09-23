@@ -1,4 +1,3 @@
-import Google from "next-auth/providers/google"
 import { prisma } from './prisma'
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import NextAuth from "next-auth"
