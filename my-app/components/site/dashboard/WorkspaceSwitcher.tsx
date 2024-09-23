@@ -22,6 +22,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 interface WorkspaceSwitcherProps {
   image: string
+  // eslint-disable-next-line
   setIsAdmin: (v: boolean) => void;
   userData: User | null
 }
@@ -79,9 +80,9 @@ export default function WorkspaceSwitcher({ setIsAdmin, userData }: WorkspaceSwi
       isUserAdminOnCurrentWorkspace();
     }
     loadWorkspaces()
-  }, [wsId, userData])
+  }, [wsId, userData, router])
 
-  const handleWorkspaceSwitch = (v: string, i: number) => {
+  const handleWorkspaceSwitch = (v: string) => {
     router.push("/dashboard?workspace=" + v);
     //workspaceindex is used to determine the active workspace out of the 
     // workspaces array.
@@ -102,7 +103,7 @@ export default function WorkspaceSwitcher({ setIsAdmin, userData }: WorkspaceSwi
 
               <div className="flex flex-row items-center gap-2">
                 <div>
-                  <Image src={workspaces.find((ws) => ws.id === wsId)?.image!} alt="Team Img" height={32} width={32} className="rounded-md" />
+                  <Image src={workspaces.find((ws) => ws.id === wsId)?.image} alt="Team Img" height={32} width={32} className="rounded-md" />
                 </div>
                 <div className="flex flex-col text-left">
                   <h1 className="text-gray-600 text-xs">{workspaces.find((ws) => ws.id === wsId)?.workspaceType}</h1>
@@ -123,7 +124,7 @@ export default function WorkspaceSwitcher({ setIsAdmin, userData }: WorkspaceSwi
                       key={i}
                       value={ws.id}
                       onSelect={(currentValue) => {
-                        handleWorkspaceSwitch(currentValue, i)
+                        handleWorkspaceSwitch(currentValue)
                       }}
                     >
                       {ws.name}

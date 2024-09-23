@@ -33,6 +33,7 @@ const tabs: TabItem[] = [
 export type Views = "dashboard" | "assets" | "user";
 
 interface SidebarProps {
+    // eslint-disable-next-line
     setView: (v: Views) => void;
 }
 
